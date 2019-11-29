@@ -1,0 +1,139 @@
+#include<iostream>
+#include "src\StackType.cpp"
+#include<cctype>
+#include<string>
+#include<stack>
+
+using namespace std;
+
+int prec(char c)
+{
+	if(c == '^')
+	return 3;
+	else if(c == '*' || c == '/')
+	return 2;
+	else if(c == '+' || c == '-')
+	return 1;
+	else
+	return -1;
+}
+
+void infixToPostfix(string s)
+{
+	StackType<char> st;
+	st.Push('N');
+	int l = s.length();
+	string ns;
+	StackType <string> ans;
+	for(int i = 0; i < l; i++)
+	{
+
+		if((s[i] >= 'a' && s[i] <= 'z')||(s[i] >= 'A' && s[i] <= 'Z')||(s[i] >='0' && s[i] <= '9'))
+		ns+=s[i];
+
+		else if(s[i] == '(')
+
+		st.Push('(');
+
+		else if(s[i] == ')')
+		{
+			while(st.Top() != 'N' && st.Top() != '(')
+			{
+				char c = st.Top();
+				st.Pop();
+			ns += c;
+			}
+			if(st.Top() == '(')
+			{
+				char c = st.Top();
+				st.Pop();
+			}
+		}
+
+		else{
+			while(st.Top() != 'N' && prec(s[i]) <= prec(st.Top()))
+			{
+				char c = st.Top();
+				st.Pop();
+				ns += c;
+			}
+			st.Push(s[i]);
+		}
+
+	}
+	while(st.Top() != 'N')
+	{
+		char c = st.Top();
+		st.Pop();
+		ns += c;
+	}
+
+	cout <<"The Postfix Expression : " <<ns << endl;
+
+}
+
+
+int evaluate(string pf);
+int math(int operand1,int operand2,char optor);
+
+int main()
+{
+	string exp = "(4+8)*(6-5)/((3-2)*(2+2))";
+	infixToPostfix(exp);
+
+	string pf ="48+65-*32-22+*/";
+	int ans =evaluate(pf);
+	cout <<"The Answer of Expression : "<<ans<<endl;
+
+
+	return 0;
+}
+
+
+int evaluate(string pf){
+    StackType<int> num;
+    int len =pf.length();
+    cout<<"The Length is : "<<len<< endl;
+    int i, operand1, operand2, call, store;
+    char optor;
+
+    for (i=0; i<len;i++)
+    {
+        if(isdigit(pf[i])){
+            num.Push(pf[i]-'0');
+            //cout<<num.Top()<<endl;
+        }
+        else{
+            optor= pf[i];
+            operand2=num.Top();
+            num.Pop();
+            operand1 = num.Top();
+            num.Pop();
+            store=math(operand1, operand2, optor);
+            num.Push(store);
+        }
+    }
+return num.Top();
+}
+
+int math(int operand1,int operand2,char optor){
+        if (optor=='+')
+        {
+            return operand1+operand2;
+        }
+       else if (optor=='-')
+        {
+            return operand1-operand2;
+        }
+        else if (optor=='*')
+        {
+            return operand1*operand2;
+        }
+
+        if (optor=='/')
+        {
+            return operand1/operand2;
+        }
+
+}
+
